@@ -16,8 +16,8 @@ sudo ln -sf /usr/local/share/aclocal/pkg.m4 /usr/share/aclocal/
         #+END_SRC
 ******* Install ZeroMQ
         #+BEGIN_SRC: sh
-git clone http://github.com/zeromq/zeromq2.git
-cd zeromq2
+git clone https://github.com/zeromq/libzmq
+cd libzmq
 ./autogen.sh
 FLAGS="-arch i386" CFLAGS="$CFLAGS ${FLAGS}" CXXFLAGS="$CXXFLAGS ${FLAGS}" \
     ./configure --disable-dependency-tracking
