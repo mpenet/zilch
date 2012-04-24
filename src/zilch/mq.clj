@@ -24,44 +24,44 @@
 (def pull ZMQ/PULL)
 
 (defn socket
-  [#^ZMQ$Context context type]
+  [^ZMQ$Context context type]
   (.socket context type))
 
 (defn bind
-  [#^ZMQ$Socket socket url]
+  [^ZMQ$Socket socket url]
   (doto socket
     (.bind url)))
 
 (defn connect
-  [#^ZMQ$Socket socket url]
+  [^ZMQ$Socket socket url]
   (doto socket
     (.connect url)))
 
 (defn subscribe
-  ([#^ZMQ$Socket socket #^String topic]
+  ([^ZMQ$Socket socket ^String topic]
      (doto socket
        (.subscribe (.getBytes topic))))
-  ([#^ZMQ$Socket socket]
+  ([^ZMQ$Socket socket]
      (subscribe socket "")))
 
 (defn unsubscribe
-  ([#^ZMQ$Socket socket #^String topic]
+  ([^ZMQ$Socket socket ^String topic]
      (doto socket
        (.unsubscribe (.getBytes topic))))
-  ([#^ZMQ$Socket socket]
+  ([^ZMQ$Socket socket]
      (unsubscribe socket "")))
 
-(defmulti send (fn [#^ZMQ$Socket socket message & flags]
+(defmulti send (fn [^ZMQ$Socket socket message & flags]
                  (class message)))
 
 (defmethod send String
-  ([#^ZMQ$Socket socket #^String message flags]
+  ([^ZMQ$Socket socket ^String message flags]
      (.send socket (.getBytes message) flags))
-  ([#^ZMQ$Socket socket #^String message]
+  ([^ZMQ$Socket socket ^String message]
      (send socket message ZMQ/NOBLOCK)))
 
 (defn recv
-  ([#^ZMQ$Socket socket flags]
+  ([^ZMQ$Socket socket flags]
      (.recv socket flags))
-  ([#^ZMQ$Socket socket]
+  ([^ZMQ$Socket socket]
      (recv socket 0)))
