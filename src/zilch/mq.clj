@@ -1,6 +1,7 @@
 (ns zilch.mq
   (:refer-clojure :exclude [send])
-  (:import [org.zeromq ZMQ ZMQ$Context ZMQ$Socket]))
+  (:import [org.zeromq ZMQ ZMQ$Context ZMQ$Socket]
+           [java.util Random]))
 
 (defn context [threads]
   (ZMQ/context threads))
@@ -72,3 +73,24 @@
      (.recv socket flags))
   ([^ZMQ$Socket socket]
      (recv socket 0)))
+
+(defn recv-all
+  ([^ZMQ$Socket socket flags]
+     (loop [acc []]
+       (let [msg (recv socket flags)]
+         (if (.hasReceiveMore socket)
+           (recur (conj acc msg))
+           (conj acc msg)))))
+  ([^ZMQ$Socket socket]
+     (recv-all socket 0)))
+
+(defn identify
+  [^ZMQ$Socket socket ^String name]
+  (.setIdentity socket (.getBytes name)))
+
+(defn set-id
+  ([^ZMQ$Socket socket n]
+    (let [rdn (Random. (System/currentTimeMillis))]
+      (identify socket (str (.nextLong rdn) "-" (.nextLong rdn) (int n)))))
+  ([^ZMQ$Socket socket]
+     (set-id socket 0)))
