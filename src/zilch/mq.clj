@@ -13,6 +13,8 @@
 
 (def sndmore ZMQ/SNDMORE)
 
+(def router ZMQ/XREP)
+(def dealer ZMQ/XREQ)
 (def req ZMQ/REQ)
 (def rep ZMQ/REP)
 (def xreq ZMQ/XREQ)
@@ -51,13 +53,18 @@
   ([^ZMQ$Socket socket]
      (unsubscribe socket "")))
 
-(defmulti send (fn [^ZMQ$Socket socket message & flags]
-                 (class message)))
+(defprotocol PZMessage
+  (encode [message]))
 
-(defmethod send String
-  ([^ZMQ$Socket socket ^String message flags]
-     (.send socket (.getBytes message) flags))
-  ([^ZMQ$Socket socket ^String message]
+(extend-protocol PZMessage
+  String
+  (encode [message]
+    (.getBytes message)))
+
+(defn send
+  ([^ZMQ$Socket socket message flags]
+     (.send socket (encode message) flags))
+  ([^ZMQ$Socket socket message]
      (send socket message ZMQ/NOBLOCK)))
 
 (defn recv
