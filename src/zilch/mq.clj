@@ -1,6 +1,19 @@
 (ns zilch.mq
   (:refer-clojure :exclude [send])
-  (:import [org.zeromq ZMQ ZMQ$Context ZMQ$Socket]))
+  (:import [org.zeromq ZMQ ZMQ$Context ZMQ$Socket]
+           [java.util Random]))
+
+(defprotocol PByteArrayEncoder
+  (encode [value] "Encodes input to byte array for use as topic or messages values"))
+
+(extend-protocol PByteArrayEncoder
+  String
+  (encode [value]
+    (.getBytes value))
+
+  Object
+  (encode [message]
+    message))
 
 (defn context [threads]
   (ZMQ/context threads))
@@ -38,26 +51,23 @@
     (.connect url)))
 
 (defn subscribe
-  ([#^ZMQ$Socket socket #^String topic]
+  ([#^ZMQ$Socket socket topic]
      (doto socket
-       (.subscribe (.getBytes topic))))
+       (.subscribe (encode topic))))
   ([#^ZMQ$Socket socket]
-     (subscribe socket "")))
+     (subscribe socket (byte-array []))))
 
 (defn unsubscribe
-  ([#^ZMQ$Socket socket #^String topic]
+  ([#^ZMQ$Socket socket topic]
      (doto socket
-       (.unsubscribe (.getBytes topic))))
+       (.unsubscribe (encode topic))))
   ([#^ZMQ$Socket socket]
-     (unsubscribe socket "")))
+     (unsubscribe socket (byte-array []))))
 
-(defmulti send (fn [#^ZMQ$Socket socket message & flags]
-                 (class message)))
-
-(defmethod send String
-  ([#^ZMQ$Socket socket #^String message flags]
-     (.send socket (.getBytes message) flags))
-  ([#^ZMQ$Socket socket #^String message]
+(defn send
+  ([#^ZMQ$Socket socket message flags]
+     (.send socket (encode message) flags))
+  ([#^ZMQ$Socket socket message]
      (send socket message ZMQ/NOBLOCK)))
 
 (defn recv
