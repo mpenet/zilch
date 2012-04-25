@@ -75,3 +75,29 @@
      (.recv socket flags))
   ([#^ZMQ$Socket socket]
      (recv socket 0)))
+
+(defn recv-all
+  ([#^ZMQ$Socket socket flags]
+     (loop [acc []]
+       (let [msg (recv socket flags)]
+         (if (.hasReceiveMore socket)
+           (recur (conj acc msg))
+           (conj acc msg)))))
+  ([#^ZMQ$Socket socket]
+     (recv-all socket 0)))
+
+(defn identify
+  [#^ZMQ$Socket socket name]
+  (.setIdentity socket (encode name)))
+
+(defn set-linger
+  [#^ZMQ$Socket socket linger-ms]
+  (doto socket
+    (.setLinger (long linger-ms))))
+
+(defn set-hwm
+  [#^ZMQ$Socket socket hwm]
+  (if hwm
+    (doto socket
+      (.setHWM (long hwm)))
+    socket))
