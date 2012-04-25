@@ -1,7 +1,6 @@
 (ns zilch.mq
   (:refer-clojure :exclude [send])
-  (:import [org.zeromq ZMQ ZMQ$Context ZMQ$Socket]
-           [java.util Random]))
+  (:import [org.zeromq ZMQ ZMQ$Context ZMQ$Socket]))
 
 (defprotocol PByteArrayEncoder
   (encode [value] "Encodes input to byte array for use as topic or messages values"))
