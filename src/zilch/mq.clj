@@ -7,7 +7,7 @@
 
 (defmacro with-context
   [id threads & body]
-  `(let [~id (context ~threads)]
+  `(let [~(with-meta id {:tag "org.zeromq.ZMQ$Context"}) (context ~threads)]
      (try ~@body
           (finally (.term ~id)))))
 
